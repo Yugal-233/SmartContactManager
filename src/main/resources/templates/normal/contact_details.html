@@ -6,7 +6,7 @@
 </head>
 <body>
 <section>
-<div class="card mr-3 ml-3">
+<div class="card mr-3 ml-3" th:if="${contact}">
 	<div class="card-body">
 	<div class="container text-center">
 	      <img class="my_profile_picture" src="" style="height:200px; width:200px;" th:src="@{'/image/'+${contact.image}}" alt="profile photo" />
@@ -41,12 +41,15 @@
   <th:block th:utext="${contact.description}"></th:block>
   </div>
   <div class="container mt-3">
-      <button class="btn btn-danger btn-sm btn-block">Delete</button>
+      <button th:onclick="|deleteContact(${contact.cId})|" class="btn btn-danger btn-sm btn-block">Delete</button>
       <button class="btn btn-primary btn-sm btn-block">Update</button>
   </div>
 	</div>
 	</div>
+	
 </div>
+	<h1 class="text-center p-3 bg-danger mr-3" th:unless="${contact}">You don't have permission to see this contact</h1>
+
 </section>
 
 </body>
