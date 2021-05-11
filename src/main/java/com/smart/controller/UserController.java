@@ -9,6 +9,7 @@ import java.security.Principal;
 import java.util.Optional;
 
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -124,14 +125,88 @@ public class UserController {
 		}
 		return "normal/contact_details";
 	}
-	
+	 
 	@GetMapping("/delete/{cid}")
-	public String deleteContact(@PathVariable("cid") Integer cId, Model Model, HttpSession session) {
+	@Transactional
+	public String deleteContact(@PathVariable("cid") Integer cId, Model Model, HttpSession session, Principal principal) {
 		System.out.println("CID :: "+cId);
-		Contact contact =  this.contactRepository.findById(cId).get();
-		System.out.println("Contact :: "+contact.getcId());
-		contact.setUsers(null);
+		Contact contact = this.contactRepository.findById(cId).get();
+		/*
+		 * contact.setUsers(null); this.contactRepository.delete(contact);
+		 */
+		
+		User user = this.userRepository.getUserByUserName(principal.getName());
+		user.getContacts().remove(contact);
+		this.userRepository.save(user);
 		session.setAttribute("message", new Message("Contact Deleted Successfully", "success"));
-		return "redirect:user/view-contacts/0";
+		return "redirect:/user/view-contacts/0";
+	}
+	
+	/*
+	 * @GetMapping("/delete") public String deleteByID(Integer cId) {
+	 * 
+	 * List<Contact> clist=contactRepository.findAll(); Contact ct=clist.stream()
+	 * .filter(contact->cId.equals(contact.getcId())) .findAny() .orElse(null);
+	 * contactRepository.delete(ct); return "redirect:/user/view-contacts/0"; }
+	 */
+	
+	@PostMapping("/update-contact/{cid}")
+	public String updateForm(@PathVariable("cid") Integer cId, Model m)
+	{
+		m.addAttribute("title","Update Contact");
+		Contact contact = this.contactRepository.findById(cId).get();
+		m.addAttribute("contact", contact);
+		return "normal/update-form";
+	}
+	
+	@PostMapping("/process-update")
+	public String updateHandler(@ModelAttribute Contact contact, @RequestParam("profileImage") MultipartFile file, Model m, HttpSession session, Principal principal) {
+		
+		try {
+			
+			Contact oldContactDet = this.contactRepository.findById(contact.getcId()).get();
+			if(!file.isEmpty()) {
+				
+				File deleteFile = new ClassPathResource("static/image").getFile();
+				File file1 = new File(deleteFile, oldContactDet.getImage());
+				file1.delete();
+				
+				File saveFile = new ClassPathResource("static/image").getFile();
+				Path path = Paths.get(saveFile.getAbsolutePath() + File.separator+ file.getOriginalFilename());
+				Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+				contact.setImage(file.getOriginalFilename());
+				
+			}else {
+				contact.setImage(oldContactDet.getImage());
+			}
+			User user =  this.userRepository.getUserByUserName(principal.getName());
+			contact.setUsers(user);
+			this.contactRepository.save(contact);
+			session.setAttribute("message", new Message("Your Contact is is updated", "success"));
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		return "redirect:/user/"+contact.getcId()+"/contact"; 
+	}
+	
+	@GetMapping("/profile")
+	public String yourProfile(Model m) {
+		
+		m.addAttribute("title", "Profile Page");
+		return "normal/profile";
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

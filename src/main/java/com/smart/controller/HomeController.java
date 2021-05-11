@@ -89,4 +89,11 @@ public class HomeController {
 		model.addAttribute("title", "Login Page");
 		return "login";
 	}
+	
+	@GetMapping("/login-fail")
+	public String customLoginFailed(Model model) {
+		
+		model.addAttribute("title", "Login Page Failed");
+		return "loginFailed";
+	}
 }

@@ -16,23 +16,23 @@
   <thead>
     <tr>
       <th scope="col">#Id</th>
-      <th scope="col">SCMUSER<span th:text="${contact.cId}"></span>First</th>
+      <th scope="col">SCMUSER<span th:text="${contact.cId}"></span></th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th scope="row">Email</th>
-      <td><span th:text="${contact.email}"></span>Mark</td>
+      <td><span th:text="${contact.email}"></span></td>
     </tr>
     
     <tr>
       <th scope="row">Phone</th>
-      <td><span th:text="${contact.phone}"></span>Mark</td>
+      <td><span th:text="${contact.phone}"></span></td>
     </tr>
     
      <tr>
       <th scope="row">Work</th>
-      <td><span th:text="${contact.work}"></span>Mark</td>
+      <td><span th:text="${contact.work}"></span></td>
     </tr>
 
   </tbody>
@@ -42,8 +42,11 @@
   </div>
   <div class="container mt-3">
       <button th:onclick="|deleteContact(${contact.cId})|" class="btn btn-danger btn-sm btn-block">Delete</button>
-      <button class="btn btn-primary btn-sm btn-block">Update</button>
+      <form method="post" th:action="@{'/user/update-contact/'+${contact.cId}}" class="mt-2">
+      <button type="submit" class="btn btn-block btn-primary btn-sm">Update</button>
+      </form>
   </div>
+  
 	</div>
 	</div>
 	
